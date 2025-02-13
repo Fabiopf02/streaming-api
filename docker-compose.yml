@@ -1,0 +1,10 @@
+services:
+  streaming-api:
+    container_name: streaming-api-container
+    image: $REGISTRY_USER/streaming-api:latest
+    pull_policy: always
+    restart: always
+    environment:
+      PORT: 3000
+    ports:
+      - 3000

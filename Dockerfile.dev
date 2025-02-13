@@ -1,0 +1,16 @@
+FROM node:23-slim as base
+
+WORKDIR /app
+
+RUN corepack enable pnpm
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install
+
+COPY . .
+
+ARG PORT=3000
+ENV PORT=$PORT
+
+EXPOSE $PORT
+
+CMD ["pnpm", "run", "start:dev"]

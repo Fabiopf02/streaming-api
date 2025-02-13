@@ -1,0 +1,16 @@
+services:
+  streaming-api-dev:
+    container_name: streaming-api-dev-container
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    pull_policy: always
+    restart: always
+    environment:
+      PORT: 3000
+    ports:
+      - 3000:3000
+
+networks:
+  streaming-network:
+    driver: bridge
