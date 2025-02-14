@@ -1,6 +1,6 @@
-FROM node:23-slim as base
+FROM node:23-slim AS base
 
-FROM base as builder
+FROM base AS builder
 WORKDIR /build
 
 RUN corepack enable pnpm
@@ -14,7 +14,7 @@ COPY nest-cli.json ./
 RUN pnpm run build
 RUN pnpm prune --prod
 
-FROM base as prod
+FROM base AS prod
 WORKDIR /app
 USER node
 

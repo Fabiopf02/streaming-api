@@ -8,8 +8,20 @@ services:
     restart: always
     environment:
       PORT: 3000
+    networks:
+      - streaming-network
+    volumes:
+      - .:/app
     ports:
       - 3000:3000
+
+  redis:
+    image: redis:alpine
+    container_name: streaming-redis
+    ports:
+      - '6379'
+    networks:
+      - streaming-network
 
 networks:
   streaming-network:
