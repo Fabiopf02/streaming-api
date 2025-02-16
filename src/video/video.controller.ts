@@ -70,15 +70,17 @@ export class VideoController {
   @HttpCode(HttpStatus.CREATED)
   async process(@Body() processVideoDto: ProcessVideoDto) {
     try {
-      const videoAlreadyExists = await this.videoService.findByYoutubeId(
+      const videoAlreadyExists = await this.videoService.findByYoutubeUrl(
         processVideoDto.videoUrl,
       );
+
       if (videoAlreadyExists)
         throw new HttpException('Video Id already exists', HttpStatus.CONFLICT);
 
       const searchedVideo = await this.youtubeService.getVideoInfo(
         processVideoDto.videoUrl,
       );
+
       if (!searchedVideo)
         throw new HttpException(
           'Youtube video not found',
@@ -101,7 +103,7 @@ export class VideoController {
 
       const createdVideo = await this.videoService.create({
         youtubeId: searchedVideo.youtubeId,
-        url: searchedVideo.url,
+        url: processVideoDto.videoUrl,
         title: searchedVideo.title,
         description: searchedVideo.description,
         category: searchedVideo.category,

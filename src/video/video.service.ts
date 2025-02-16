@@ -27,6 +27,10 @@ export class VideoService {
     return this.videoRepository.findOneBy({ youtubeId });
   }
 
+  findByYoutubeUrl(url: string) {
+    return this.videoRepository.findOneBy({ url });
+  }
+
   async updateStatus(updateVideoStatusDto: UpdateVideoStatusDto) {
     const { id, status } = updateVideoStatusDto;
     return this.videoRepository.update({ id }, { status });

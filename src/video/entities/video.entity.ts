@@ -30,7 +30,7 @@ export class Video {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'varchar', length: 80 })
+  @Column({ type: 'varchar', unique: true, length: 80 })
   url: string;
 
   @Column({ type: 'integer' })
