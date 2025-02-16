@@ -8,6 +8,11 @@ services:
     restart: always
     environment:
       PORT: 3000
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_PORT: ${MINIO_PORT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_AUDIOS_BUCKET: ${MINIO_AUDIOS_BUCKET}
     networks:
       - streaming-network
     volumes:
@@ -15,14 +20,47 @@ services:
     ports:
       - 3000:3000
 
-  redis:
+  redis-dev:
     image: redis:alpine
-    container_name: streaming-redis
+    container_name: streaming-redis-dev-container
     ports:
       - '6379'
+    networks:
+      - streaming-network
+
+  streaming-db-dev:
+    image: postgres:latest
+    container_name: streaming-db-dev-container
+    networks:
+      - streaming-network
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - '5432'
+      - '5435:5432'
+
+  minio:
+    image: minio/minio
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+    ports:
+      - '9000:9000'
+      - '9001:9001'
     networks:
       - streaming-network
 
 networks:
   streaming-network:
     driver: bridge
+
+volumes:
+  db-data:
+  minio_data:

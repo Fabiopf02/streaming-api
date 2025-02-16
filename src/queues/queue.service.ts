@@ -10,9 +10,14 @@ export class QueueService {
   async addToQueue(data: any, options: JobsOptions = {}) {
     const queue = this.getQueue();
 
-    await queue.add('task', data, { attempts: 3, backoff: 5000, ...options });
+    const job = await queue.add('task', data, {
+      attempts: 3,
+      backoff: 5000,
+      removeOnComplete: true,
+      ...options,
+    });
 
-    return { message: `Tarefa adicionada à fila` };
+    return { id: job.id };
   }
 
   getQueue(): Queue {

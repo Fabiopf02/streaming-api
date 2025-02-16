@@ -1,0 +1,6 @@
+export enum VideoStatus {
+  PROCESSING = 'PROCESSING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+  SCHEDULED = 'SCHEDULED',
+}
