@@ -20,7 +20,7 @@ export abstract class QueueProcessor extends WorkerHost {
 
     await this.videoService.updateStatus({
       id: data.id,
-      status: VideoStatus.COMPLETED,
+      status: VideoStatus.PROCESSED,
     });
 
     const completionTime = finishedOn ? new Date(finishedOn).toISOString() : '';
