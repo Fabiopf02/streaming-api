@@ -8,16 +8,19 @@ export class YoutubeService {
     try {
       const info = await ytdl.getInfo(url);
       const videoDetails = info.videoDetails;
+      const sortedThumbnails = [...videoDetails.thumbnails].sort(
+        (thumb1, thumb2) => thumb1.width - thumb2.width,
+      );
       return {
         youtubeId: videoDetails.videoId,
         title: videoDetails.title,
         description: videoDetails.description || undefined,
-        thumbnail: videoDetails.thumbnails[0].url,
+        thumbnail: sortedThumbnails.at(-1)!.url,
         url: videoDetails.video_url,
         author: {
           id: videoDetails.author.id,
           name: videoDetails.author.name,
-          avatar: videoDetails.author.avatar,
+          avatar: videoDetails.author.thumbnails![1].url,
           channelUrl: videoDetails.author.channel_url,
           user: videoDetails.author.user || null,
         },
