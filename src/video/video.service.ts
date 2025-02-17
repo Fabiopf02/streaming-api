@@ -24,8 +24,12 @@ export class VideoService {
     return this.videoRepository.save(createVideoDto);
   }
 
-  findByYoutubeId(youtubeId: string) {
-    return this.videoRepository.findOneBy({ youtubeId });
+  async findByYoutubeId(youtubeId: string) {
+    const response = await this.videoRepository.findOne({
+      where: { youtubeId },
+      relations: { author: true },
+    });
+    return response;
   }
 
   findByYoutubeUrl(url: string) {
