@@ -18,6 +18,7 @@ import { StorageModule } from 'src/storage/storage.module';
     TypeOrmModule.forFeature([Video]),
   ],
   controllers: [VideoController],
+  exports: [VideoService],
   providers: [VideoService, VideoQueueProcessor],
 })
 export class VideoModule {}

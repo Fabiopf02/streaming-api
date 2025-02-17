@@ -32,6 +32,23 @@ export class VideoService {
     return this.videoRepository.findOneBy({ url });
   }
 
+  findExisting(youtubeIds: string[]) {
+    return this.videoRepository
+      .createQueryBuilder('video')
+      .select([
+        'video.youtubeId as youtubeId',
+        'video.title as title',
+        'video.thumbnail as thumbnail',
+        'video.url as url',
+        'video.author as author',
+        'video.durationInSeconds as durationInSeconds',
+        'LEFT(video.description, 220) as description',
+        'video.status as status',
+      ])
+      .where('video.youtubeId IN (:...ids)', { ids: youtubeIds })
+      .getMany();
+  }
+
   async searchVideos({ search, page, limit, order }: FilterVideosDto) {
     const query = this.videoRepository
       .createQueryBuilder('video')
@@ -39,7 +56,7 @@ export class VideoService {
         'video.id as id',
         'video.youtubeId as youtubeId',
         'video.title as title',
-        'LEFT(video.description, 200) as description',
+        'LEFT(video.description, 220) as description',
         'video.durationInSeconds as duration',
         'video.thumbnail as thumbnail',
         'video.status as status',
