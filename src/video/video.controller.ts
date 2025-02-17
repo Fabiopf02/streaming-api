@@ -9,6 +9,7 @@ import {
   Inject,
   Param,
   Post,
+  Query,
   Res,
   UsePipes,
   ValidationPipe,
@@ -20,6 +21,7 @@ import { CreateAuthorDto } from 'src/author/dto/create-author.dto';
 import { YoutubeService } from 'src/youtube/youtube.service';
 import { StorageService } from 'src/storage/storage.service';
 import { FastifyReply } from 'fastify';
+import { FilterVideosDto } from './dto/filter-video.dto';
 
 @Controller('video')
 export class VideoController {
@@ -29,6 +31,11 @@ export class VideoController {
     @Inject(AuthorService) private readonly authorService: AuthorService,
     @Inject(StorageService) private readonly storageService: StorageService,
   ) {}
+
+  @Get('list')
+  list(@Query() filters: FilterVideosDto) {
+    return this.videoService.searchVideos(filters);
+  }
 
   @Get('youtube-id/:id')
   async findByYoutubeId(@Param('id') id: string) {

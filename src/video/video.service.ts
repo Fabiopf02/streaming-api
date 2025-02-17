@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { ScheduleProcessingDto } from './dto/process-video.dto';
 import { UpdateVideoStatusDto } from './dto/update-video.dto';
+import { FilterVideosDto } from './dto/filter-video.dto';
 
 @Injectable()
 export class VideoService {
@@ -29,6 +30,47 @@ export class VideoService {
 
   findByYoutubeUrl(url: string) {
     return this.videoRepository.findOneBy({ url });
+  }
+
+  async searchVideos({ search, page, limit, order }: FilterVideosDto) {
+    const query = this.videoRepository
+      .createQueryBuilder('video')
+      .select([
+        'video.id as id',
+        'video.youtubeId as youtubeId',
+        'video.title as title',
+        'LEFT(video.description, 200) as description',
+        'video.durationInSeconds as duration',
+        'video.thumbnail as thumbnail',
+        'video.status as status',
+      ])
+      .where(
+        '(LOWER(video.title) ILIKE LOWER(:term) OR LOWER(video.description) ILIKE LOWER(:term))',
+        {
+          term: `%${search}%`,
+        },
+      );
+
+    const skip = (page - 1) * limit;
+
+    const [videos, total] = await Promise.all([
+      query
+        .skip(skip)
+        .limit(limit)
+        .orderBy('video.uploadDate', order)
+        .getRawMany(),
+      query.getCount(),
+    ]);
+
+    return {
+      data: videos,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async updateStatus(updateVideoStatusDto: UpdateVideoStatusDto) {
