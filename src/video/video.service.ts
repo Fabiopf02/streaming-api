@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { QueueService } from 'src/queues/queue.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Video } from './entities/video.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { ScheduleProcessingDto } from './dto/process-video.dto';
 import { UpdateVideoStatusDto } from './dto/update-video.dto';
@@ -37,20 +37,20 @@ export class VideoService {
   }
 
   findExisting(youtubeIds: string[]) {
-    return this.videoRepository
-      .createQueryBuilder('video')
-      .select([
-        'video.youtubeId as youtubeId',
-        'video.title as title',
-        'video.thumbnail as thumbnail',
-        'video.url as url',
-        'video.author as author',
-        'video.durationInSeconds as durationInSeconds',
-        'LEFT(video.description, 220) as description',
-        'video.status as status',
-      ])
-      .where('video.youtubeId IN (:...ids)', { ids: youtubeIds })
-      .getMany();
+    return this.videoRepository.find({
+      where: { youtubeId: In(youtubeIds) },
+      select: [
+        'youtubeId',
+        'title',
+        'thumbnail',
+        'url',
+        'author',
+        'durationInSeconds',
+        'description',
+        'status',
+      ],
+      relations: { author: true },
+    });
   }
 
   async searchVideos({ search, page, limit, order }: FilterVideosDto) {

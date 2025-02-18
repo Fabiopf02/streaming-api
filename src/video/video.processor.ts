@@ -9,7 +9,7 @@ import { StorageService } from 'src/storage/storage.service';
 import { YoutubeService } from 'src/youtube/youtube.service';
 
 @Processor(QueueNames.DOWNLOAD, {
-  concurrency: 10,
+  concurrency: 20,
 })
 export class VideoQueueProcessor extends QueueProcessor {
   constructor(
