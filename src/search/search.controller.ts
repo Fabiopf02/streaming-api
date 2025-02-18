@@ -36,7 +36,7 @@ export class SearchController {
         thumbnail: ytVideo.thumbnail,
         url: ytVideo.url,
         author: ytVideo.author,
-        durationInSeconds: ytVideo.durationInSeconds,
+        durationInSeconds: ytVideo.durationInSeconds.seconds,
         description: ytVideo.description,
         status: VideoStatus.NOT_PROCESSED,
       };
