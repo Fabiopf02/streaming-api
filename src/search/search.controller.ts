@@ -5,7 +5,9 @@ import {
   HttpStatus,
   Inject,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
 import { VideoStatus } from 'src/video/enums/video-status.enum';
 import { VideoService } from 'src/video/video.service';
 import { YoutubeService } from 'src/youtube/youtube.service';
@@ -19,6 +21,7 @@ export class SearchController {
     private readonly videoService: VideoService,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async search(@Query('query') query: string) {
     const youtubeVideos = await this.youtubeService.searchVideos(query);
@@ -50,6 +53,7 @@ export class SearchController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('video')
   async getVideoById(@Query('id') query: string) {
     const videoSearched = await this.youtubeService.searchByYoutubeId(query);

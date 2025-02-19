@@ -11,6 +11,7 @@ import {
   Post,
   Query,
   Res,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -22,6 +23,7 @@ import { YoutubeService } from 'src/youtube/youtube.service';
 import { StorageService } from 'src/storage/storage.service';
 import { FastifyReply } from 'fastify';
 import { FilterVideosDto } from './dto/filter-video.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
 
 @Controller('video')
 export class VideoController {
@@ -32,11 +34,13 @@ export class VideoController {
     @Inject(StorageService) private readonly storageService: StorageService,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get('list')
   list(@Query() filters: FilterVideosDto) {
     return this.videoService.searchVideos(filters);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('youtube-id/:id')
   async findByYoutubeId(@Param('id') id: string) {
     const video = await this.videoService.findByYoutubeId(id);
@@ -57,6 +61,7 @@ export class VideoController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('stream/:id')
   async streamAudio(@Param('id') id: string, @Res() reply: FastifyReply) {
     try {
@@ -72,6 +77,7 @@ export class VideoController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('process')
   @UsePipes(new ValidationPipe({ errorHttpStatusCode: 422 }))
   @HttpCode(HttpStatus.CREATED)
