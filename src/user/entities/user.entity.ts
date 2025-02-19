@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -16,7 +15,7 @@ export class User {
   @Column({ type: 'varchar', length: 45, nullable: true })
   name: string;
 
-  @PrimaryColumn({ type: 'varchar', length: 45, unique: true })
+  @Column({ type: 'varchar', length: 45, unique: true })
   email: string;
 
   @Column({ type: 'enum', enum: UserStatus, default: UserStatus.Checking })

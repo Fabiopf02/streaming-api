@@ -92,7 +92,7 @@ export class AuthService {
       name: user.name,
       email: user.email,
       token,
-      expiresInSeconds: Number(process.env.JWT_EXPIRES_IN_SECONDS),
+      expiresIn: Number(process.env.JWT_EXPIRES_IN),
     };
   }
 }

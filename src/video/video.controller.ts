@@ -10,6 +10,7 @@ import {
   Param,
   Post,
   Query,
+  Req,
   Res,
   UseGuards,
   UsePipes,
@@ -21,9 +22,10 @@ import { AuthorService } from 'src/author/author.service';
 import { CreateAuthorDto } from 'src/author/dto/create-author.dto';
 import { YoutubeService } from 'src/youtube/youtube.service';
 import { StorageService } from 'src/storage/storage.service';
-import { FastifyReply } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import { FilterVideosDto } from './dto/filter-video.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
+import { extractUser } from 'src/utility/helpers';
 
 @Controller('video')
 export class VideoController {
@@ -81,8 +83,13 @@ export class VideoController {
   @Post('process')
   @UsePipes(new ValidationPipe({ errorHttpStatusCode: 422 }))
   @HttpCode(HttpStatus.CREATED)
-  async process(@Body() processVideoDto: ProcessVideoDto) {
+  async process(
+    @Body() processVideoDto: ProcessVideoDto,
+    @Req() req: FastifyRequest,
+  ) {
     try {
+      const user = extractUser(req);
+
       const videoAlreadyExists = await this.videoService.findByYoutubeUrl(
         processVideoDto.videoUrl,
       );
@@ -114,7 +121,7 @@ export class VideoController {
         author = await this.authorService.create(createAuthorDto);
       }
 
-      const createdVideo = await this.videoService.create({
+      const createdVideo = await this.videoService.create(user.id, {
         youtubeId: searchedVideo.youtubeId,
         url: processVideoDto.videoUrl,
         title: searchedVideo.title,

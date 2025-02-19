@@ -25,7 +25,8 @@ export class JwtAuthGuard implements CanActivate {
       });
       request.headers.user = payload;
       return true;
-    } catch {
+    } catch (error) {
+      console.log(error);
       return false;
     }
   }

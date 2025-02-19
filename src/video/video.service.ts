@@ -20,8 +20,11 @@ export class VideoService {
     return this.queueService.addToQueue(scheduleProcessingDto, { delay: 5000 });
   }
 
-  create(createVideoDto: CreateVideoDto) {
-    return this.videoRepository.save(createVideoDto);
+  create(userId: number, createVideoDto: CreateVideoDto) {
+    return this.videoRepository.save({
+      ...createVideoDto,
+      requestedBy: userId,
+    });
   }
 
   async findByYoutubeId(youtubeId: string) {
@@ -64,6 +67,7 @@ export class VideoService {
         'video.durationInSeconds as duration',
         'video.thumbnail as thumbnail',
         'video.status as status',
+        'video.requestedBy as requestedBy',
       ])
       .where(
         '(LOWER(video.title) ILIKE LOWER(:term) OR LOWER(video.description) ILIKE LOWER(:term))',

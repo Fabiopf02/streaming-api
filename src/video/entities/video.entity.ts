@@ -58,6 +58,9 @@ export class Video {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Column({ type: 'integer', nullable: false })
+  requestedBy: number;
+
   @ManyToOne(() => Author, (author) => author.videos, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'author_id' })
   author: Author;
