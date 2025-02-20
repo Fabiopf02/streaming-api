@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { QueueService } from 'src/queues/queue.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Video } from './entities/video.entity';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { ScheduleProcessingDto } from './dto/process-video.dto';
 import { UpdateVideoStatusDto } from './dto/update-video.dto';
@@ -39,21 +39,55 @@ export class VideoService {
     return this.videoRepository.findOneBy({ url });
   }
 
-  findExisting(youtubeIds: string[]) {
-    return this.videoRepository.find({
-      where: { youtubeId: In(youtubeIds) },
-      select: [
-        'youtubeId',
-        'title',
-        'thumbnail',
-        'url',
-        'author',
-        'durationInSeconds',
-        'description',
-        'status',
-      ],
-      relations: { author: true },
-    });
+  async findExisting(youtubeIds: string[], userId: number) {
+    const result = await this.videoRepository
+      .createQueryBuilder('video')
+      .leftJoinAndSelect(
+        'video.favorites',
+        'favorite',
+        'favorite.user_id = :userId',
+        { userId },
+      )
+      .innerJoinAndSelect('video.author', 'author')
+      .select([
+        'video.id',
+        'video.youtubeId',
+        'video.title',
+        'video.thumbnail',
+        'video.url',
+        'video.durationInSeconds',
+        'LEFT(video.description, 220) as description',
+        'video.status',
+        'video.requestedBy',
+
+        'author.id',
+        'author.youtubeId',
+        'author.name',
+        'author.avatar',
+
+        'favorite.id as favorite_id',
+      ])
+      .where('video.youtubeId in (:...ids)', { ids: youtubeIds })
+      .getRawMany();
+
+    return result.map((record) => ({
+      id: record.video_id,
+      youtubeId: record.video_youtubeId,
+      title: record.video_title,
+      thumbnail: record.video_thumbnail,
+      url: record.video_url,
+      author: {
+        id: record.author_author_id,
+        youtubeId: record.author_youtubeId,
+        name: record.author_name,
+        avatar: record.author_avatar,
+      },
+      durationInSeconds: record.video_durationInSeconds,
+      description: record.description,
+      status: record.video_status,
+      requestedBy: record.video_requestedBy,
+      isFavorite: !!record.favorite_id,
+    }));
   }
 
   async searchVideos({ search, page, limit, order }: FilterVideosDto) {

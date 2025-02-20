@@ -10,6 +10,7 @@ import { databaseConfig } from './config/database.config';
 import { AuthorModule } from './author/author.module';
 import { UsersModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { FavoritesModule } from './favorites/favorites.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AuthModule } from './auth/auth.module';
     VideoModule,
     UsersModule,
     AuthModule,
+    FavoritesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

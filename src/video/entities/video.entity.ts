@@ -5,18 +5,19 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryColumn,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { VideoStatus } from '../enums/video-status.enum';
+import { Favorite } from 'src/favorites/entities/favorites.entity';
 
 @Entity()
 export class Video {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @PrimaryColumn({
+  @Column({
     type: 'varchar',
     unique: true,
     length: 11,
@@ -64,4 +65,7 @@ export class Video {
   @ManyToOne(() => Author, (author) => author.videos, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'author_id' })
   author: Author;
+
+  @OneToMany(() => Favorite, (favorite) => favorite.video)
+  favorites: Favorite[];
 }

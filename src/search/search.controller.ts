@@ -5,9 +5,12 @@ import {
   HttpStatus,
   Inject,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import { FastifyRequest } from 'fastify';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
+import { extractUser } from 'src/utility/helpers';
 import { VideoStatus } from 'src/video/enums/video-status.enum';
 import { VideoService } from 'src/video/video.service';
 import { YoutubeService } from 'src/youtube/youtube.service';
@@ -23,10 +26,14 @@ export class SearchController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async search(@Query('query') query: string) {
+  async search(@Query('query') query: string, @Req() req: FastifyRequest) {
+    const user = extractUser(req);
     const youtubeVideos = await this.youtubeService.searchVideos(query);
     const youtubeIds = youtubeVideos.map((ytVideo) => ytVideo.youtubeId);
-    const existingVideos = await this.videoService.findExisting(youtubeIds);
+    const existingVideos = await this.videoService.findExisting(
+      youtubeIds,
+      user.id,
+    );
     const existingVideoMap = new Map(
       existingVideos.map((video) => [video.youtubeId, video]),
     );
@@ -42,6 +49,7 @@ export class SearchController {
         durationInSeconds: ytVideo.durationInSeconds.seconds,
         description: ytVideo.description,
         status: VideoStatus.NOT_PROCESSED,
+        isFavorite: false,
       };
     });
 
