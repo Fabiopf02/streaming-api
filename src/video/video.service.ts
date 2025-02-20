@@ -27,12 +27,18 @@ export class VideoService {
     });
   }
 
-  async findByYoutubeId(youtubeId: string) {
-    const response = await this.videoRepository.findOne({
-      where: { youtubeId },
-      relations: { author: true },
-    });
-    return response;
+  async findByYoutubeId(youtubeId: string, userId: number) {
+    return await this.videoRepository
+      .createQueryBuilder('video')
+      .leftJoinAndSelect('video.author', 'author')
+      .leftJoinAndSelect(
+        'video.favorites',
+        'favorite',
+        'favorite.user_id = :userId',
+        { userId },
+      )
+      .where('video.youtubeId = :youtubeId', { youtubeId })
+      .getOne();
   }
 
   findByYoutubeUrl(url: string) {

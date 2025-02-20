@@ -44,8 +44,9 @@ export class VideoController {
 
   @UseGuards(JwtAuthGuard)
   @Get('youtube-id/:id')
-  async findByYoutubeId(@Param('id') id: string) {
-    const video = await this.videoService.findByYoutubeId(id);
+  async findByYoutubeId(@Param('id') id: string, @Req() req: FastifyRequest) {
+    const user = extractUser(req);
+    const video = await this.videoService.findByYoutubeId(id, user.id);
     if (video) return video;
     throw new HttpException(
       'Youtube video ID not found.',
