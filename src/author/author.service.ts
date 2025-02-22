@@ -15,8 +15,17 @@ export class AuthorService {
     return this.authorRepository.save(createAuthorDto);
   }
 
-  findAll() {
-    return this.authorRepository.find();
+  async findAll() {
+    return this.authorRepository
+      .createQueryBuilder('author')
+      .leftJoinAndSelect('author.videos', 'videos')
+      .select([
+        'author.*',
+        'CAST(COUNT(videos.id) AS integer) as videos',
+        'CAST(SUM(videos.durationInSeconds) AS integer) as time',
+      ])
+      .addGroupBy('author.id')
+      .getRawMany();
   }
 
   findOneById(id: number) {
