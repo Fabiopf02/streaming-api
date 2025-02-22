@@ -15,7 +15,7 @@ import { FavoritesModule } from './favorites/favorites.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRootAsync(databaseConfig),
+    TypeOrmModule.forRoot(databaseConfig),
     QueueModule,
     AuthorModule,
     SearchModule,
