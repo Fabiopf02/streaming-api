@@ -19,10 +19,10 @@ export class Author {
   @Column({ type: 'varchar', length: 60 })
   name: string;
 
-  @Column({ type: 'varchar', length: 150 })
+  @Column({ type: 'varchar', length: 180 })
   avatar: string;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 110 })
   channelUrl: string;
 
   @Column({ type: 'varchar', length: 30 })

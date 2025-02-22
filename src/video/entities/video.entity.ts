@@ -25,13 +25,13 @@ export class Video {
   })
   youtubeId: string;
 
-  @Column({ type: 'varchar', length: 120 })
+  @Column({ type: 'varchar', length: 140 })
   title: string;
 
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'varchar', unique: true, length: 80 })
+  @Column({ type: 'varchar', unique: true, length: 100 })
   url: string;
 
   @Column({ type: 'integer' })
@@ -43,7 +43,7 @@ export class Video {
   @Column({ type: 'timestamp' })
   uploadDate: Date;
 
-  @Column({ type: 'varchar', length: 150 })
+  @Column({ type: 'varchar', length: 180 })
   thumbnail: string;
 
   @Column({
