@@ -28,7 +28,7 @@ export class VideoService {
   }
 
   async findByYoutubeId(youtubeId: string, userId: number) {
-    return await this.videoRepository
+    const videoData = await this.videoRepository
       .createQueryBuilder('video')
       .leftJoinAndSelect('video.author', 'author')
       .leftJoinAndSelect(
@@ -39,6 +39,13 @@ export class VideoService {
       )
       .where('video.youtubeId = :youtubeId', { youtubeId })
       .getOne();
+    if (!videoData) return null;
+
+    const { favorites, ...restData } = videoData;
+    return {
+      ...restData,
+      isFavorite: favorites?.length > 0,
+    };
   }
 
   findByYoutubeUrl(url: string) {
