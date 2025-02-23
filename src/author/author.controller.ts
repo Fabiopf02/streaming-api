@@ -48,6 +48,14 @@ export class AuthorController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('youtube/:youtubeId')
+  async findOneByYoutubeId(@Param('youtubeId') youtubeId: string) {
+    const author = await this.authorService.findOneByYoutubeId(youtubeId);
+    if (author) return author;
+    throw new HttpException('Author not found', HttpStatus.NOT_FOUND);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('url/:url')
   async findOneByUrl(@Param('url') url: string) {
     const author = await this.authorService.findOneByUrl(url);

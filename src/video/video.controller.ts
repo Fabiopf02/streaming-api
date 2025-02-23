@@ -81,6 +81,12 @@ export class VideoController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('author/:id')
+  async findByAuthor(@Param('id') id: string) {
+    return this.videoService.findByAuthor(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('process')
   @UsePipes(new ValidationPipe({ errorHttpStatusCode: 422 }))
   @HttpCode(HttpStatus.CREATED)

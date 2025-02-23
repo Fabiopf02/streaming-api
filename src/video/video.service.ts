@@ -150,6 +150,21 @@ export class VideoService {
     return this.videoRepository.update({ id }, { status });
   }
 
+  async findByAuthor(authorId: string) {
+    const videos = await this.videoRepository.find({
+      where: { author: { youtubeId: authorId } },
+      relations: { author: true, favorites: true },
+    });
+
+    return videos.map((video) => {
+      const { favorites, ...restData } = video;
+      return {
+        ...restData,
+        isFavorite: favorites?.length > 0,
+      };
+    });
+  }
+
   deleteByYoutubeId(youtubeId: string) {
     return this.videoRepository.delete({ youtubeId });
   }

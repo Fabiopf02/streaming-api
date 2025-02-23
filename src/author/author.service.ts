@@ -32,6 +32,10 @@ export class AuthorService {
     return this.authorRepository.findOneBy({ id });
   }
 
+  findOneByYoutubeId(youtubeId: string) {
+    return this.authorRepository.findOneBy({ youtubeId });
+  }
+
   findOneByName(name: string) {
     return this.authorRepository.findOneBy({ name });
   }
