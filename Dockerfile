@@ -4,25 +4,30 @@ FROM base AS builder
 WORKDIR /build
 
 RUN corepack enable pnpm
-COPY package.json ./
-COPY pnpm-lock.yaml ./
+
+COPY package.json pnpm-lock.yaml ./
+
 RUN pnpm install
 
-COPY ./src ./src
-COPY tsconfig*.json ./
-COPY nest-cli.json ./
+COPY . .
+
 RUN pnpm run build
+
 RUN pnpm prune --prod
 
 FROM base AS prod
 WORKDIR /app
-USER node
 
-COPY --from=builder --chown=node:node /build/dist .
+# RUN useradd --create-home --shell /bin/bash appuser
+# USER appuser
+
+COPY --from=builder /build/dist ./dist
+COPY --from=builder /build/node_modules ./node_modules
+COPY --from=builder /build/package.json ./
 
 ARG PORT=3000
 ENV PORT=$PORT
 
 EXPOSE $PORT
 
-CMD ["pnpm", "run", "start:prod"]
+CMD ["node", "dist/src/main.js"]

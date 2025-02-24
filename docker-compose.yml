@@ -1,15 +1,26 @@
 services:
   streaming-api:
     container_name: streaming-api-container
-    image: $REGISTRY_USER/streaming-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     pull_policy: always
     restart: always
     environment:
       PORT: 3000
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_PORT: ${MINIO_PORT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_AUDIOS_BUCKET: ${MINIO_AUDIOS_BUCKET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      JWT_SECRET: ${JWT_SECRET}
     networks:
       - streaming-network
     ports:
       - 3000
+    env_file:
+      - .env
 
   redis:
     image: redis:alpine
@@ -18,7 +29,58 @@ services:
       - '6379'
     networks:
       - streaming-network
+    env_file:
+      - .env
+
+  streaming-db:
+    image: postgres:latest
+    container_name: streaming-db-container
+    networks:
+      - streaming-network
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - '5432'
+    env_file:
+      - .env
+
+  minio:
+    image: minio/minio
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    networks:
+      - streaming-network
+    env_file:
+      - .env
+
+  nginx:
+    image: nginx:alpine
+    container_name: streaming-nginx-container
+    restart: unless-stopped
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - '8080:80'
+    networks:
+      - streaming-network
+    depends_on:
+      - streaming-api
 
 networks:
   streaming-network:
     driver: bridge
+
+volumes:
+  db-data:
+  minio_data:
