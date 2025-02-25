@@ -27,8 +27,13 @@ services:
     container_name: streaming-redis
     ports:
       - '6379'
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command: ['redis-server', '--requirepass', '${REDIS_PASSWORD}']
     networks:
       - streaming-network
+    volumes:
+      - redis_data:/data
     env_file:
       - .env
 
@@ -42,7 +47,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_DATABASE}
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
     ports:
       - '5432'
     env_file:
@@ -82,5 +87,6 @@ networks:
     driver: bridge
 
 volumes:
-  db-data:
+  db_data:
   minio_data:
+  redis_data:
