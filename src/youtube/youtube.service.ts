@@ -1,12 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { search } from 'yt-search';
 import * as ytdl from '@distube/ytdl-core';
+import { getAgent } from 'src/config/agents';
 
 @Injectable()
 export class YoutubeService {
   async getVideoInfo(url: string) {
     try {
-      const info = await ytdl.getInfo(url);
+      const info = await ytdl.getInfo(url, { agent: getAgent() });
       const videoDetails = info.videoDetails;
       const sortedThumbnails = [...videoDetails.thumbnails].sort(
         (thumb1, thumb2) => thumb1.width - thumb2.width,
@@ -28,7 +29,8 @@ export class YoutubeService {
         uploadDate: videoDetails.uploadDate,
         durationInSeconds: Number(videoDetails.lengthSeconds),
       };
-    } catch {
+    } catch (err) {
+      console.log(err);
       throw new HttpException('Invalid youtube URL', HttpStatus.BAD_REQUEST);
     }
   }

@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@distube/ytdl-core':
-    specifier: ^4.16.3
-    version: 4.16.3
+    specifier: ^4.16.4
+    version: 4.16.4
   '@nestjs/bullmq':
     specifier: ^11.0.2
     version: 11.0.2(@nestjs/common@11.0.1)(@nestjs/core@11.0.1)(bullmq@5.40.4)
@@ -568,8 +568,8 @@ packages:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
 
-  /@distube/ytdl-core@4.16.3:
-    resolution: {integrity: sha512-E+xXs89DtbbNhYsD3/3IUQ7aGhLXbe9Y69a5HaoGKsK6z2VzyPtILSzv5rqWYI5VIWUaGp/3DuGu2pUUgyv3Bw==}
+  /@distube/ytdl-core@4.16.4:
+    resolution: {integrity: sha512-r0ZPMMB5rbUSQSez//dYDWjPSAEOm6eeV+9gyR+1vngGYFUi953Z/CoF4epTBS40X8dR32gyH3ERlh7NbnCaRg==}
     engines: {node: '>=20.18.1'}
     dependencies:
       http-cookie-agent: 6.0.8(tough-cookie@5.1.1)(undici@7.3.0)
