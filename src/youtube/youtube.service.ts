@@ -36,7 +36,11 @@ export class YoutubeService {
   }
 
   getAudioStream(url: string) {
-    return ytdl(url, { filter: 'audioonly', quality: 'highestaudio' });
+    return ytdl(url, {
+      filter: 'audioonly',
+      quality: 'highestaudio',
+      agent: getAgent(),
+    });
   }
 
   async searchVideos(query: string) {
