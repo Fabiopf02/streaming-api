@@ -7,7 +7,10 @@ import { QueueNames } from './queue.constants';
 @Module({
   imports: [
     BullModule.forRootAsync(bullConfig),
-    BullModule.registerQueue({ name: QueueNames.DOWNLOAD }),
+    BullModule.registerQueue(
+      { name: QueueNames.DOWNLOAD },
+      { name: QueueNames.PRE_PROCESSING },
+    ),
   ],
   providers: [QueueService],
   exports: [QueueService],

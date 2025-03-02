@@ -2,13 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { JobsOptions, Queue } from 'bullmq';
 import { QueueNames } from './queue.constants';
 import { InjectQueue } from '@nestjs/bullmq';
-
 @Injectable()
 export class QueueService {
-  constructor(@InjectQueue(QueueNames.DOWNLOAD) private downloadQueue: Queue) {}
+  constructor(
+    @InjectQueue(QueueNames.DOWNLOAD) private downloadQueue: Queue,
+    @InjectQueue(QueueNames.PRE_PROCESSING) private preProcessQueue: Queue,
+  ) {}
 
-  async addToQueue(data: any, options: JobsOptions = {}) {
-    const queue = this.getQueue();
+  async addToQueue(name: QueueNames, data: any, options: JobsOptions = {}) {
+    const queue =
+      name === QueueNames.DOWNLOAD
+        ? this.getDownloadQueue()
+        : this.getPreProcessQueue();
 
     const job = await queue.add('task', data, {
       attempts: 3,
@@ -20,7 +25,11 @@ export class QueueService {
     return { id: job.id };
   }
 
-  getQueue(): Queue {
+  getDownloadQueue(): Queue {
     return this.downloadQueue;
+  }
+
+  getPreProcessQueue(): Queue {
+    return this.preProcessQueue;
   }
 }

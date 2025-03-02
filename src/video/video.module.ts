@@ -9,6 +9,7 @@ import { AuthorModule } from 'src/author/author.module';
 import { YoutubeModule } from 'src/youtube/youtube.module';
 import { StorageModule } from 'src/storage/storage.module';
 import { JwtService } from '@nestjs/jwt';
+import { VideoQueuePreProcessor } from './video.pre-processor';
 
 @Module({
   imports: [
@@ -20,6 +21,11 @@ import { JwtService } from '@nestjs/jwt';
   ],
   controllers: [VideoController],
   exports: [VideoService],
-  providers: [VideoService, VideoQueueProcessor, JwtService],
+  providers: [
+    VideoService,
+    VideoQueueProcessor,
+    VideoQueuePreProcessor,
+    JwtService,
+  ],
 })
 export class VideoModule {}

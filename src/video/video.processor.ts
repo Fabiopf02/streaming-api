@@ -9,7 +9,8 @@ import { StorageService } from 'src/storage/storage.service';
 import { YoutubeService } from 'src/youtube/youtube.service';
 
 @Processor(QueueNames.DOWNLOAD, {
-  concurrency: 20,
+  autorun: process.env.ENABLE_PROCESSOR === 'true',
+  concurrency: 15,
 })
 export class VideoQueueProcessor extends QueueProcessor {
   constructor(

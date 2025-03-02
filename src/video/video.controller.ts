@@ -18,21 +18,18 @@ import {
 } from '@nestjs/common';
 import { VideoService } from './video.service';
 import { ProcessVideoDto } from './dto/process-video.dto';
-import { AuthorService } from 'src/author/author.service';
-import { CreateAuthorDto } from 'src/author/dto/create-author.dto';
-import { YoutubeService } from 'src/youtube/youtube.service';
 import { StorageService } from 'src/storage/storage.service';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { FilterVideosDto } from './dto/filter-video.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
 import { extractUser } from 'src/utility/helpers';
+import { QueueService } from 'src/queues/queue.service';
 
 @Controller('video')
 export class VideoController {
   constructor(
     private readonly videoService: VideoService,
-    @Inject(YoutubeService) private readonly youtubeService: YoutubeService,
-    @Inject(AuthorService) private readonly authorService: AuthorService,
+    private readonly queueService: QueueService,
     @Inject(StorageService) private readonly storageService: StorageService,
   ) {}
 
@@ -94,62 +91,32 @@ export class VideoController {
     @Body() processVideoDto: ProcessVideoDto,
     @Req() req: FastifyRequest,
   ) {
-    try {
-      const user = extractUser(req);
+    const user = extractUser(req);
 
-      const videoAlreadyExists = await this.videoService.findByYoutubeUrl(
-        processVideoDto.videoUrl,
-      );
+    const videoAlreadyExists = await this.videoService.findByYoutubeUrl(
+      processVideoDto.videoUrl,
+    );
 
-      if (videoAlreadyExists)
-        throw new HttpException('Video Id already exists', HttpStatus.CONFLICT);
+    if (videoAlreadyExists)
+      throw new HttpException('Video Id already exists', HttpStatus.CONFLICT);
 
-      const searchedVideo = await this.youtubeService.getVideoInfo(
-        processVideoDto.videoUrl,
-      );
+    await this.videoService.schedulePreProcessing(user.id, processVideoDto);
 
-      if (!searchedVideo)
-        throw new HttpException(
-          'Youtube video not found',
-          HttpStatus.NOT_FOUND,
-        );
+    return {
+      message: 'Video processing scheduled. Check back later.',
+    };
+  }
 
-      let author = await this.authorService.findOneByUrl(
-        searchedVideo.author.channelUrl,
-      );
-
-      if (!author) {
-        const createAuthorDto = new CreateAuthorDto();
-        createAuthorDto.name = searchedVideo.author.name;
-        createAuthorDto.channelUrl = searchedVideo.author.channelUrl;
-        createAuthorDto.avatar = searchedVideo.author.avatar;
-        createAuthorDto.youtubeId = searchedVideo.author.id;
-        createAuthorDto.user = searchedVideo.author.user!;
-        author = await this.authorService.create(createAuthorDto);
-      }
-
-      const createdVideo = await this.videoService.create(user.id, {
-        youtubeId: searchedVideo.youtubeId,
-        url: processVideoDto.videoUrl,
-        title: searchedVideo.title,
-        description: searchedVideo.description,
-        category: searchedVideo.category,
-        thumbnail: searchedVideo.thumbnail,
-        uploadDate: searchedVideo.uploadDate,
-        durationInSeconds: searchedVideo.durationInSeconds,
-        author,
-      });
-
-      await this.videoService.scheduleProcessing({
-        id: createdVideo.id,
-        url: createdVideo.url,
-        youtubeId: createdVideo.youtubeId,
-      });
-
-      return createdVideo;
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
+  @Get('/queue')
+  async getQueue() {
+    const queue = this.queueService.getPreProcessQueue();
+    const [total, list] = await Promise.all([
+      queue.count(),
+      queue.getDelayed(),
+    ]);
+    return {
+      total,
+      list,
+    };
   }
 }

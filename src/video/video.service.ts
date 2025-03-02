@@ -4,9 +4,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Video } from './entities/video.entity';
 import { Repository } from 'typeorm';
 import { CreateVideoDto } from './dto/create-video.dto';
-import { ScheduleProcessingDto } from './dto/process-video.dto';
+import {
+  ProcessVideoDto,
+  ScheduleProcessingDto,
+} from './dto/process-video.dto';
 import { UpdateVideoStatusDto } from './dto/update-video.dto';
 import { FilterVideosDto } from './dto/filter-video.dto';
+import { QueueNames } from 'src/queues/queue.constants';
 
 @Injectable()
 export class VideoService {
@@ -16,8 +20,30 @@ export class VideoService {
     private readonly videoRepository: Repository<Video>,
   ) {}
 
-  async scheduleProcessing(scheduleProcessingDto: ScheduleProcessingDto) {
-    return this.queueService.addToQueue(scheduleProcessingDto, { delay: 5000 });
+  async schedulePreProcessing(
+    userId: number,
+    processVideoDto: ProcessVideoDto,
+  ) {
+    return this.queueService.addToQueue(
+      QueueNames.PRE_PROCESSING,
+      {
+        videoUrl: processVideoDto.videoUrl,
+        userId,
+      },
+      {
+        delay: 5000,
+      },
+    );
+  }
+
+  async scheduleDownloadProcessing(
+    scheduleProcessingDto: ScheduleProcessingDto,
+  ) {
+    return this.queueService.addToQueue(
+      QueueNames.DOWNLOAD,
+      scheduleProcessingDto,
+      { delay: 5000 },
+    );
   }
 
   create(userId: number, createVideoDto: CreateVideoDto) {
