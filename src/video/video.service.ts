@@ -11,6 +11,7 @@ import {
 import { UpdateVideoStatusDto } from './dto/update-video.dto';
 import { FilterVideosDto } from './dto/filter-video.dto';
 import { QueueNames } from 'src/queues/queue.constants';
+import { extractVideoId } from 'src/utility/helpers';
 
 @Injectable()
 export class VideoService {
@@ -32,6 +33,7 @@ export class VideoService {
       },
       {
         delay: 5000,
+        jobId: extractVideoId(processVideoDto.videoUrl),
       },
     );
   }

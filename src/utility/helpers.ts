@@ -16,3 +16,7 @@ export function extractUser(req: FastifyRequest) {
     email: userData.email,
   };
 }
+
+export function extractVideoId(url: string) {
+  return url.split('v=')[1].split('&')[0];
+}

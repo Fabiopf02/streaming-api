@@ -22,7 +22,7 @@ import { StorageService } from 'src/storage/storage.service';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { FilterVideosDto } from './dto/filter-video.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
-import { extractUser } from 'src/utility/helpers';
+import { extractUser, extractVideoId } from 'src/utility/helpers';
 import { QueueService } from 'src/queues/queue.service';
 
 @Controller('video')
@@ -97,7 +97,11 @@ export class VideoController {
       processVideoDto.videoUrl,
     );
 
-    if (videoAlreadyExists)
+    const isProcessing = await this.queueService
+      .getPreProcessQueue()
+      .getJob(extractVideoId(processVideoDto.videoUrl));
+
+    if (videoAlreadyExists || isProcessing)
       throw new HttpException('Video Id already exists', HttpStatus.CONFLICT);
 
     await this.videoService.schedulePreProcessing(user.id, processVideoDto);
