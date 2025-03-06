@@ -61,18 +61,45 @@ export class VideoController {
     };
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('stream/:id')
-  async streamAudio(@Param('id') id: string, @Res() reply: FastifyReply) {
+  async streamAudio(
+    @Param('id') id: string,
+    @Req() req: FastifyRequest,
+    @Res() reply: FastifyReply,
+  ) {
     try {
-      const stream = await this.storageService.getAudioStream(id);
+      const object = await this.storageService.statObject(id);
 
-      reply.header('Content-Type', 'audio/mpeg');
-      reply.header('Transfer-Encoding', 'chunked');
+      reply.header('content-type', 'audio/mpeg');
+      reply.header('transfer-encoding', 'chunked');
 
-      return reply.send(stream);
-    } catch (error) {
-      console.log(error?.message);
+      if (!req.headers.range) {
+        reply.header('content-length', object.size);
+        const stream = await this.storageService.getAudioStream(id);
+
+        return reply.send(stream);
+      }
+
+      const [start, end] = req.headers.range
+        .replace(/bytes=/, '')
+        .split('-')
+        .map(Number);
+
+      const chunkStart = start || 0;
+      const chunkEnd = end || object.size - 1;
+      const chunkSize = chunkEnd - chunkStart + 1;
+
+      reply.header('accept-ranges', 'bytes');
+      reply.header('content-length', chunkSize);
+      reply.header(
+        'content-range',
+        `bytes ${chunkStart}-${chunkEnd}/${object.size}`,
+      );
+
+      return reply.send(
+        this.storageService.getPartialAudioStream(id, chunkStart, chunkSize),
+      );
+    } catch {
       throw new HttpException('Audio not found', HttpStatus.NOT_FOUND);
     }
   }
