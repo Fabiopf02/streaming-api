@@ -48,26 +48,6 @@ export class StorageService implements OnModuleInit {
     );
   }
 
-  async getPartialAudioStream(
-    id: string,
-    offset: number,
-    length: number,
-  ): Promise<Readable> {
-    return await this.minioClient.getPartialObject(
-      this.bucketName,
-      this.getAudioObjectId(id),
-      offset,
-      length,
-    );
-  }
-
-  async statObject(id: string) {
-    return this.minioClient.statObject(
-      this.bucketName,
-      this.getAudioObjectId(id),
-    );
-  }
-
   async checkAudioExists(objectId: string) {
     try {
       await this.minioClient.statObject(this.bucketName, objectId);
