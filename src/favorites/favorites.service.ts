@@ -31,18 +31,14 @@ export class FavoritesService {
 
     if (existingFavorite) {
       await this.favoriteRepository.remove(existingFavorite);
-      return {
-        message: 'Video removed from favorites',
-      };
+      return false;
     }
 
     const newFavorite = this.favoriteRepository.create({ user, video });
 
     await this.favoriteRepository.save(newFavorite);
 
-    return {
-      message: 'Video added to favorites',
-    };
+    return true;
   }
 
   async getUserFavorites(userId: number) {
