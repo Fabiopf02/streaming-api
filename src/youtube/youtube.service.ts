@@ -42,7 +42,11 @@ export class YoutubeService {
   }
 
   async searchVideos(query: string) {
-    const result = await search({ query });
+    const result = await search({
+      query,
+      hl: 'pt',
+      gl: 'BR',
+    });
     return result.videos.map((video) => ({
       youtubeId: video.videoId,
       title: video.title,

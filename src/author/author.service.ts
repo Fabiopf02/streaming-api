@@ -24,6 +24,7 @@ export class AuthorService {
         'CAST(COUNT(videos.id) AS integer) as videos',
         'CAST(SUM(videos.durationInSeconds) AS integer) as time',
       ])
+      .addOrderBy('author.name', 'ASC')
       .addGroupBy('author.id')
       .getRawMany();
   }

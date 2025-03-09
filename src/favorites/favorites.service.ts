@@ -70,6 +70,7 @@ export class FavoritesService {
         'author.createdAt',
         'author.updatedAt',
       ])
+      .orderBy('favorite.favoritedAt', 'DESC')
       .where('favorite.user_id = :userId', { userId })
       .getRawMany();
 
