@@ -32,7 +32,6 @@ export class VideoService {
         userId,
       },
       {
-        delay: 5000,
         jobId: extractVideoId(processVideoDto.videoUrl),
       },
     );
@@ -44,7 +43,6 @@ export class VideoService {
     return this.queueService.addToQueue(
       QueueNames.DOWNLOAD,
       scheduleProcessingDto,
-      { delay: 5000 },
     );
   }
 
